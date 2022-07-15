@@ -1,0 +1,19 @@
+.message-header {
+  border-bottom-width: 1px;
+  margin-bottom: 0.5rem;
+  border-style: dashed;
+}
+
+.dm .content {
+  background-color: Var(--dark);
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+}
+
+.msg-container {
+  padding: 0.25rem;
+}
+
+.msg-container:hover {
+  background-color: Var(--H);
+}

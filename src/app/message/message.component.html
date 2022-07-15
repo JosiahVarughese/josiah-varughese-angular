@@ -1,0 +1,54 @@
+<div (mouseenter)="focused=true" (mouseleave)="focused=false" class="{{messageData.type}} msg-container position-relative">
+
+  <div *ngIf="focused" class="position-absolute end-0 top-0">
+
+    <div *ngIf="editing; then edit; else view"></div>
+    <ng-template #edit>
+
+      <a href="#" (click)="toggleEdit()" class="me-3">cancel</a>
+      <a href="#" (click)="requestUpdate('update')">save</a>
+
+    </ng-template>
+    <ng-template #view>
+
+      <a href="#" (click)="toggleEdit()" class="me-3">edit</a>
+      <a href="#" (click)="requestUpdate('delete')">delete</a>
+
+    </ng-template>
+
+  </div>
+
+  <div *ngIf="editing; then edit; else view"></div>
+  <ng-template #edit>
+
+    <div class="d-flex justify-content-between">
+
+      <span class="subtle">Editing</span>
+
+    </div>
+
+    <form [formGroup]="editForm" (ngSubmit)="requestUpdate('update')">
+
+      <input formControlName="content" />
+
+    </form>
+
+  </ng-template>
+  <ng-template #view>
+
+    <div *ngIf="!repeatMsg" class="message-header">
+
+      <a href="#" class="me-3">{{messageData.author.username}}</a>
+      <small class="subtle">{{messageData.date | date}}</small>
+
+    </div>
+
+    <div class="flex-grow-1">
+
+      <span class="de-enf content w-auto h-auto" style="white-space: pre-line">{{messageData.content}}</span>
+
+    </div>
+
+  </ng-template>
+
+</div>

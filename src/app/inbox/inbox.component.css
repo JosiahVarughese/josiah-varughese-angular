@@ -1,0 +1,51 @@
+.tabs {
+  border-radius: 1.5rem;
+  border-width: 1px;
+  border-color: Var(--medLight);
+}
+
+.tabs-active {
+  background-color: Var(--medLight);
+}
+.tabs-active a {
+  color: Var(--exLight);
+}
+
+.tabs-inactive {
+  background-color: transparent;
+}
+.tabs-inactive a {
+  color: Var(--medLight);
+}
+
+.tabs-inactive a:hover {
+  color: Var(--exLight);
+  transition: color ease-in-out 300ms
+}
+
+.tabs-inactive:hover {
+  background-color: Var(--medLight);
+  transition: background-color ease-in-out 300ms;
+}
+
+.chat-bg {
+  background-color: Var(--medDark);
+  border-radius: 1rem;
+  overflow-y: scroll;
+  height: 32rem;
+}
+
+.search-suggestions {
+  background-color: Var(--dark);
+  border-radius: 1.5rem;
+  top: 110%;
+}
+
+.search-suggestions a {
+  color: Var(--medLight);
+  border-bottom: 1px solid Var(--medDark);
+}
+
+.search-suggestions a:hover {
+  color: Var(--accent);
+}

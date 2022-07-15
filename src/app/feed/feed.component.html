@@ -1,0 +1,21 @@
+<div class="page-header">
+
+  <h1>Posts</h1>
+
+</div>
+
+<div class="page-container w-75 mx-auto">
+
+  <div *ngIf="!isPosting" class="mb-4 text-end">
+
+    <button (click)="addNewPost()">Post Something!</button>
+
+  </div>
+
+  <div *ngFor="let post of displayPosts" id="{{post.id}}" class="post-container p-4">
+
+      <app-post [postData]="post" [activePostId]="lastFocusedId" (makeRequest)="handlePostRequest(post, $event)"></app-post>
+
+  </div>
+
+</div>

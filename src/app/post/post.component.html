@@ -1,0 +1,71 @@
+<div *ngIf="isEditing; then edit; else view"></div>
+<ng-template #edit>
+
+  <form [formGroup]="postForm" class="mb-4">
+
+    <div class="mb-4 text-end">
+
+      <button type="button" (click)="cancelEdits()" class="me-3">Cancel</button>
+      <button *ngIf="postForm.value.content && postForm.value.title" type="button" (click)="requestUpdatePost()">{{postData.isNew ? 'Publish' : 'Save' }}</button>
+
+    </div>
+
+    <input formControlName="title" placeholder="Title" class="fs-2 mb-4 w-100"/>
+
+    <textarea formControlName="content" placeholder="What's up doc?" style="resize: none" class="fs-4 w-100"></textarea>
+
+  </form>
+
+</ng-template>
+<ng-template #view>
+
+  <div (mouseenter)="focused = true" (mouseleave)="focused = false" class="position-relative w-100">
+
+    <div *ngIf="isOwner && focused" class="hover-menu position-absolute end-0 top-0">
+
+        <button type="button" class="me-3 d-inline-block" (click)="editPost()">Edit</button>
+        <button type="button" class="d-inline-block" (click)="requestDelete()">Delete</button>
+
+    </div>
+
+    <div class="post-header mb-2">
+
+      <a class="me-3">{{postData.author.username}}</a>
+      <span class="subtle">{{postData.date | date}}</span>
+
+    </div>
+
+    <div class="mb-2 w-auto mx-auto">
+
+      <h3 class="">{{postData.title}}</h3>
+      <span class="de-enf p-2" style="white-space: pre-line">{{postData.content}}</span>
+
+    </div>
+
+    <div class="mx-3">
+
+      <div class="text-center mb-2">
+
+        <a (click)="showComments = !showComments" class="d-block mb-2">
+          {{!showComments ? postData.comments.messages.length ? 'Show (' + postData.comments.messages.length + ') comments' : 'Add comment' : 'Hide'}}
+        </a>
+
+        <form *ngIf="showComments" [formGroup]="commentForm" (ngSubmit)="requestAddComment()">
+
+          <input formControlName="commentText" type="text" class="w-100" placeholder="Comment" />
+
+        </form>
+
+      </div>
+
+      <div *ngIf="postData.comments.messages.length && showComments">
+
+        <app-thread [threadData]="postData.comments"></app-thread>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</ng-template>

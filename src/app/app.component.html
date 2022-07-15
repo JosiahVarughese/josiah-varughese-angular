@@ -1,0 +1,57 @@
+<div class="d-flex flex-column bg">
+  <div *ngIf="loggedIn; then dashboard; else login"></div>
+  <ng-template #login>
+
+    <app-login></app-login>
+
+  </ng-template>
+  <ng-template #dashboard>
+
+    <div class="p-3 d-flex justify-content-between">
+
+      <div href="#" class="title">Datcord</div>
+
+      <div class="p-1">
+        <small class="subtle me-1">Logged in as {{currentUser.username}} - </small>
+        <a href="#" class="small" (click)="requestLogout()">Logout</a>
+      </div>
+
+    </div>
+
+    <ul ngbNav [(activeId)]="activeTab" #nav="ngbNav">
+      <li class="{{activeTab === 'users' ? 'tabs-active' : 'tabs-inactive'}} tabs" [ngbNavItem]="'friends'">
+
+        <a ngbNavLink class="nav-bg-tab">Users</a>
+        <ng-template ngbNavContent>
+
+          <app-user-list></app-user-list>
+
+        </ng-template>
+
+      </li>
+      <li class="{{activeTab === 'inbox' ? 'tabs-active' : 'tabs-inactive'}} tabs" [ngbNavItem]="'inbox'">
+
+        <a ngbNavLink>Inbox</a>
+        <ng-template ngbNavContent>
+
+          <app-inbox [initialConversationId]="''"></app-inbox>
+
+        </ng-template>
+
+      </li>
+      <li class="{{activeTab === 'feed' ? 'tabs-active' : 'tabs-inactive'}} tabs" [ngbNavItem]="'feed'">
+
+        <a ngbNavLink>News feed</a>
+        <ng-template ngbNavContent>
+
+          <app-feed></app-feed>
+
+        </ng-template>
+
+      </li>
+    </ul>
+    <div [ngbNavOutlet]="nav" class="p-4 flex-grow-1 nav-bg"></div>
+
+  </ng-template>
+</div>
+

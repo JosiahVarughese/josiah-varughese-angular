@@ -1,0 +1,72 @@
+<div class="page-header">
+
+  <h1>Inbox</h1>
+
+</div>
+
+<div class="page-container d-flex">
+
+  <div id="inbox-nav" class="w-25">
+
+    <ul ngbNav #nav="ngbNav" [(activeId)]="activeConversationId" (activeIdChange)="onChangeConversation()" orientation="vertical" class="me-4">
+      <li *ngIf="!isNewConversation">
+
+        <button (click)="startNewConversation()" class="w-100 mb-3">Start a new conversation</button>
+
+      </li>
+      <li *ngIf="inboxData.length" >
+
+        <p class="de-enf text-center">Previous Conversations</p>
+
+      </li>
+      <li *ngFor="let thread of inboxData" [ngbNavItem]="thread.id" class="{{activeConversationId === thread.id ? 'tabs-active' : 'tabs-inactive'}} tabs mb-2">
+
+        <a ngbNavLink>{{getThreadName(thread)}}</a>
+        <ng-template ngbNavContent>
+
+          <app-thread [threadData]="thread"></app-thread>
+
+        </ng-template>
+
+      </li>
+    </ul>
+
+  </div>
+
+  <div id="inbox-display" class="flex-grow-1 d-flex flex-column">
+
+
+    <div *ngIf="isNewConversation">
+
+      <div class="position-relative">
+        <input [ngModel]="searchText" (ngModelChange)="onSearchUpdate($event)" (focus)="onSearchUpdate('')" (blur)="clearSearch()" placeholder="Search for friends" class="w-100 text-center"/>
+
+        <div *ngIf="userDisplayList.length" class="search-suggestions position-absolute w-100 p-3">
+          <a href="#" *ngFor="let user of userDisplayList" (click)="addRecipient(user)" class="d-block py-2">
+            {{user.username}}
+          </a>
+        </div>
+      </div>
+
+      <div class="p-3">
+        <button *ngFor="let user of newConversationUsers" (click)="removeParticipant(user)" class="mx-1">{{user.username}}</button>
+      </div>
+
+    </div>
+
+    <div  *ngIf="activeConversationId && (!isNewConversation || newConversationUsers.length)">
+
+      <h2></h2>
+
+      <div [ngbNavOutlet]="nav" class="flex-grow-1 chat-bg overflow-scroll p-4 mb-4"></div>
+
+      <form [formGroup]="messageForm" (ngSubmit)="requestSendMessage()" class="position-relative">
+        <textarea formControlName="messageText" class="w-100" placeholder="Type a new message"></textarea>
+        <button *ngIf="messageForm.value.messageText.trim()" type="submit" class="position-absolute end-0 top-0">Send</button>
+      </form>
+
+    </div>
+
+  </div>
+
+</div>

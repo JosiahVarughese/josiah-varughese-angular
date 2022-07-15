@@ -1,0 +1,93 @@
+:root {
+  --exLight: rgb(255, 255, 255);
+  --light: rgb(175, 175, 175);
+  --medLight: rgb(105, 105, 105);
+  --med: rgb(79, 79, 79);
+  --medDark: rgb(63, 63, 63);
+  --dark: rgb(49, 49, 49);
+  --exDark: rgb(37, 37, 37);
+
+  --accent: rgb(146, 124, 196);
+  --linkH: rgb(255, 122, 50);
+  --link: rgb(255, 98, 50);
+  --H: rgba(255, 174, 0, 0.01);
+}
+
+* {
+  display: block;
+  box-sizing: border-box;
+  color: Var(--exLight);
+  border: 0 solid Var(--medLight);
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100vh !important;
+  background-color: black;
+}
+
+head, title, script {
+  display: none;
+}
+
+input, textarea {
+  color: Var(--light);
+  background-color: Var(--medDark);
+  border-radius: 1.5rem;
+  padding: 0.5rem 1.25rem;
+}
+
+input:focus, textarea:focus {
+  outline: Var(--accent) solid 1px;
+}
+
+textarea {
+  resize: none;
+  height: auto;
+  max-height: 8rem;
+  overflow-y: scroll;
+  padding: 1rem;
+}
+
+::placeholder {
+  color: Var(--accent);
+  opacity: 60%;
+}
+
+a {
+  text-decoration: none;
+  color: Var(--link);
+}
+
+a:hover {
+  color: Var(--linkH);
+  transition: all ease-in-out 150ms;
+}
+
+button {
+  display: inline-block;
+  color: Var(--exLight);
+  background-color: Var(--accent);
+  padding: 0.5rem;
+  border-radius: 2rem;
+}
+
+small, span, a {
+  display: inline-block;
+}
+
+.de-enf {
+  color: Var(--light);
+}
+
+.subtle {
+  color: Var(--medLight);
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: bold;
+  line-height: 0.95;
+  color: Var(--accent);
+}

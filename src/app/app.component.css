@@ -1,0 +1,30 @@
+.bg {
+  background-color: Var(--dark);
+  height: 100vh;
+}
+
+.nav-bg {
+  background-color: Var(--med);
+}
+
+.tabs {
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.tabs-inactive {
+  background-color: transparent;
+}
+
+.tabs-active {
+  background-color: Var(--med);
+
+  transition: background-color ease-in-out 150ms;
+}
+
+.tabs-inactive a {
+  color: Var(--medLight);
+}
+
+.tabs-active a, .tabs-inactive a:hover {
+  color: Var(--exLight);
+}

@@ -1,0 +1,7 @@
+<div *ngIf="threadData.messages.length" class="d-flex flex-column">
+  <div *ngFor="let message of threadData.messages;">
+
+      <app-message [messageData]="message"></app-message>
+
+  </div>
+</div>

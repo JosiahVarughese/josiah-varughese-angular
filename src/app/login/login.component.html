@@ -1,0 +1,25 @@
+<div class="text-center p-5 mb-3">
+  <div href="#" class="title">Datcord</div>
+</div>
+<div class="w-25 mx-auto">
+
+    <form [formGroup]="loginForm" (ngSubmit)="needAccount? requestRegister() : requestLogin()" class="text-centerp-5">
+      <p *ngIf="!needAccount" class="h4 mb-4">Login</p>
+      <p *ngIf="needAccount" class="h4 mb-4">Register</p>
+
+      <input type="text" formControlName="username" class="input-bg mb-4 w-100" placeholder="Username" />
+
+      <input type="password" formControlName="password" class="input-bg mb-4 w-100" placeholder="Password" />
+
+      <button class="d-block w-100 my-4" type="submit">{{needAccount ? 'Next' : 'Login'}}</button>
+
+      <small *ngIf="failMessage" class="text-danger mb-3 d-block text-center">{{failMessage}}</small>
+
+      <div class="text-center">
+        <small class="subtle me-1">{{needAccount ? 'Already have an' : 'Need an' }} account? - </small>
+        <a href="#" (click)="toggleForms()" class="text-decoration-none small">{{needAccount ? 'Login' : 'Create account'}}</a>
+      </div>
+
+    </form>
+
+</div>
