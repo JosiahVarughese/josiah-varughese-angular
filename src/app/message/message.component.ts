@@ -35,6 +35,10 @@ export class MessageComponent implements OnInit {
       })
   }
 
+  isMessageAuthor(): boolean {
+    return this.messageData.author.id === this.dataService.currentUser.id;
+  }
+
   requestUpdate(updateType: string) {
     this.messageData.content = this.editForm.value.content;
     this.dataService.updateMessage(this.messageData, updateType);

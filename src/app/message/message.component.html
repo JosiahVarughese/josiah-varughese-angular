@@ -1,6 +1,6 @@
 <div (mouseenter)="focused=true" (mouseleave)="focused=false" class="{{messageData.type}} msg-container position-relative">
 
-  <div *ngIf="focused" class="position-absolute end-0 top-0">
+  <div *ngIf="focused && isMessageAuthor()" class="position-absolute end-0 top-0">
 
     <div *ngIf="editing; then edit; else view"></div>
     <ng-template #edit>
@@ -29,7 +29,8 @@
 
     <form [formGroup]="editForm" (ngSubmit)="requestUpdate('update')">
 
-      <input formControlName="content" />
+      <input *ngIf="messageData.type === 'comment'" formControlName="content" class="w-100"/>
+      <textarea *ngIf="messageData.type === 'dm'" formControlName="content" class="w-100" style="height: 3.5rem"></textarea>
 
     </form>
 

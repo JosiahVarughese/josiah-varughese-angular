@@ -15,8 +15,7 @@ export class AppComponent implements OnInit {
   currentUser!: IUser;
 
   loggedIn: boolean = false;
-
-  activeTab: string = 'feed';
+  activeTab: string = 'inbox';
 
   constructor(private dataService: DataService) {
     this.userSub = this.dataService.currentUser$.subscribe(user => this.onUserChange(user));

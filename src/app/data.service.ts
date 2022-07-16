@@ -12,19 +12,18 @@ import {IThread} from "./interfaces/IThread";
 })
 export class DataService {
 
-  private allAccounts: Array<IAccount>;
   private nullAccount: IAccount = { id: '', username: 'err', password: '', conversations: [] };
 
   private activeAccount!: IAccount;
-  currentUser$: Subject<IUser>;
   private _currentUser!: IUser;
-  get currentUser(): IUser {
-    return {...this._currentUser};
-  }
+  get currentUser(): IUser { return {...this._currentUser}; }
+
+  private allAccounts: Array<IAccount>;
   private allPosts: Array<IPost>;
 
-  inbox$!: Subject<Array<IThread>>;
+  currentUser$: Subject<IUser>;
   posts$!: Subject<Array<IPost>>;
+  inbox$!: Subject<Array<IThread>>;
 
   constructor() {
     this.allAccounts = [];
@@ -35,7 +34,8 @@ export class DataService {
     this.reassignUser(this.nullAccount);
   }
 
-  //CHANGING THE CURRENT USER/ACCOUNT
+
+  //LOGIN & REGISTRATION
 
   login(username: string, password: string): string {
     if (!username)
@@ -60,8 +60,8 @@ export class DataService {
 
   reassignUser(user: IUser=this.activeAccount) {
     this.activeAccount = this.allAccounts.find(account => account.id === user.id)?? this.nullAccount;
-    this.currentUser$.next(this.activeAccount);
     this._currentUser = this.activeAccount;
+    this.currentUser$.next(this.currentUser);
 
     if (this.activeAccount.id)
       this.inbox$.next(this.activeAccount.conversations);
@@ -128,16 +128,19 @@ export class DataService {
     }
   }
 
+
   //USERS
 
   getUserList(excludeCurrentUser: boolean=false): Array<IUser> {
     const idToExclude: string = excludeCurrentUser ? this.activeAccount.id : '';
-    return this.allAccounts.filter(user => user.id !== idToExclude);
+    let accountListCopy: Array<IAccount> = this.allAccounts.filter(account => account.id !== idToExclude);
+    return accountListCopy.map(account => { return {...account} as IUser });
   }
 
   findUserByName(name: string): IUser {
     return this.allAccounts.find(account => account.username === name)?? this.nullAccount;
   }
+
 
   //POSTS
 
@@ -256,6 +259,15 @@ export class DataService {
     }
   }
 
+  getActiveAccountInbox() {
+    return this.activeAccount.conversations.map(conversation => {
+      let conversationCopy = {...conversation};
+      conversationCopy.messages = [...conversationCopy.messages];
+      conversationCopy.users = [...conversationCopy.users];
+      return  conversationCopy;
+    })
+  }
+
   sendMessage(content: string, users: Array<IUser>, author: IUser=this.activeAccount) {
     let thread = this.getConversation(users);
 
@@ -272,9 +284,8 @@ export class DataService {
     if (!msgThread)
       return;
 
-
     if (updateType === 'delete')
-      msgThread.messages.filter(message => message.id !== messageToUpdate.id);
+      msgThread.messages = msgThread.messages.filter(message => message.id !== messageToUpdate.id);
 
     if (updateType === 'update') {
       let maybeMessage: IMessage | undefined = msgThread.messages.find(message => message.id === messageToUpdate.id);
@@ -286,15 +297,15 @@ export class DataService {
     this.updateMessageParentListeners(messageToUpdate);
   }
 
-  updateMessageParentListeners(message: IMessage) {
+  private updateMessageParentListeners(message: IMessage) {
     if (message.type === 'dm')
-      this.inbox$.next(this.activeAccount.conversations);
+      this.inbox$.next(this.getActiveAccountInbox());
 
     if (message.type === 'comment')
       this.posts$.next(this.getAllPosts());
   }
 
-  findMessageThread(message: IMessage): IThread | undefined {
+  private findMessageThread(message: IMessage): IThread | undefined {
     let thread: IThread | undefined;
     if (message.type === 'dm') {
       thread = this.activeAccount.conversations.find(conversation => conversation.id === message.thread.id);
@@ -342,7 +353,8 @@ export class DataService {
       'Batman',
       'Bob Ross',
       'Mr. Rogers',
-      'Pikachu'
+      'Pikachu',
+      "Dwayne 'the Rock' Johnson"
     ]
     const fillerPostContent = `This is filler content to make it look like people are actually talking about stuff. Would you like me to say more? I don't know if I could! I have said so much already! but really you should stop reading this.`;
 
