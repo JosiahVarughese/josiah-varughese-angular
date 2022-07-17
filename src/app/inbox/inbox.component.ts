@@ -16,6 +16,7 @@ export class InboxComponent implements OnInit, OnDestroy {
 
   inboxSub!: Subscription;
   inboxData: Array<IThread> = [];
+  displayInbox: Array<IThread> = [];
 
   messageForm: FormGroup = new FormGroup({
     messageText: new FormControl('')
@@ -27,6 +28,7 @@ export class InboxComponent implements OnInit, OnDestroy {
   userList: Array<IUser> = [];
   userDisplayList: Array<IUser> = [];
   searchText: string = '';
+  filterText: string = '';
   isNewConversation: boolean = false;
   newConversationUsers: Array<IUser> = [];
 
@@ -41,6 +43,8 @@ export class InboxComponent implements OnInit, OnDestroy {
 
   onInboxUpdate(inbox: Array<IThread>) {
     this.inboxData = inbox;
+    this.displayInbox = [...inbox];
+    this.dataService.sortInboxByDate(this.displayInbox);
     this.userList = this.dataService.getUserList(true);
   }
 
@@ -104,6 +108,14 @@ export class InboxComponent implements OnInit, OnDestroy {
         !this.newConversationUsers.find(otherUser => otherUser.id === user.id)
         && user.username.toLowerCase().includes(this.searchText.toLowerCase())
       );
+  }
+
+  filterConversations(newText: string) {
+    this.filterText = newText;
+    this.displayInbox = this.inboxData.filter(conversation => {
+      const conversationName = this.getThreadName(conversation);
+      return conversationName.toLowerCase().includes(this.filterText.toLowerCase());
+    });
   }
 
 }

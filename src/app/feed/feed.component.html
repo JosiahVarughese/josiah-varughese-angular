@@ -1,18 +1,60 @@
-<div class="page-header">
+<div class="page-header mb-4">
 
-  <h1>Posts</h1>
+  <div class="d-flex align-items-center mb-3 position-relative">
 
-</div>
+    <h1 class="d-inline-block mb-0 position-absolute">Posts</h1>
 
-<div class="page-container w-75 mx-auto">
+    <div class="position-relative w-50 mx-auto d-flex">
 
-  <div *ngIf="!isPosting" class="mb-4 text-end">
+      <form [formGroup]="searchForm" (ngSubmit)="setSearchContextValue()" class="flex-grow-1">
+        <input formControlName="searchText" *ngIf="!isPosting" (focus)="onSearchUpdate('')" placeholder="{{searchContext}}" class="w-100 text-center"/>
+      </form>
 
-    <button (click)="addNewPost()">Post Something!</button>
+      <button *ngIf="searchContext !== 'Search'" (click)="searchContext = 'Search'" class="ms-1">Cancel</button>
+
+      <div *ngIf="filterKeys.length && searchContext !== 'Content'" [ngSwitch]="searchContext" (mouseleave)="unfocusSearch(true)" class="search-suggestions position-absolute w-100 p-3" style="z-index: 1">
+        <div *ngSwitchCase="'Search'">
+
+          <a  href="#" *ngFor="let key of filterKeys" (click)="setSearchContext(key)" class="d-block py-2">
+            {{key}}
+          </a>
+
+        </div>
+        <div *ngSwitchCase="'Author'">
+
+          <a href="#" *ngFor="let user of displayUsers" (click)="setSearchContextValue(user.username)" class="d-block py-2">
+            {{user.username}}
+          </a>
+
+        </div>
+        <div *ngSwitchCase="'Title'">
+
+          <a href="#" *ngFor="let title of displayTitles" (click)="setSearchContextValue(title)" class="d-block py-2">
+            {{title}}
+          </a>
+
+        </div>
+      </div>
+
+    </div>
 
   </div>
 
-  <div *ngFor="let post of displayPosts" id="{{post.id}}" class="post-container p-4">
+  <div *ngIf="activeFilters.length" class="text-center">
+
+    <div class="small subtle mb-3">Click to remove</div>
+
+    <button *ngFor="let key of activeFilters" class="me-2 small py-1 px-2" (click)="clearFilter(key)">{{key}}: {{filters[key]}}</button>
+
+  </div>
+
+</div>
+
+<div class="page-container w-75 mx-auto p-4 text-center">
+
+  <button *ngIf="!isPosting" (click)="addNewPost()" class="mb-3 w-50">Post Something!</button>
+
+  <div *ngFor="let post of displayPosts" id="{{post.id}}" class="post-container p-4 text-start">
 
       <app-post [postData]="post" [activePostId]="lastFocusedId" (makeRequest)="handlePostRequest(post, $event)"></app-post>
 

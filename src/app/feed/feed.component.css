@@ -2,3 +2,17 @@
   color: Var(--light);
   border-bottom-width: 1px;
 }
+.search-suggestions {
+  background-color: Var(--dark);
+  border-radius: 1.5rem;
+  top: 110%;
+}
+
+.search-suggestions a {
+  color: Var(--medLight);
+  border-bottom: 1px solid Var(--medDark);
+}
+
+.search-suggestions a:hover {
+  color: Var(--accent);
+}

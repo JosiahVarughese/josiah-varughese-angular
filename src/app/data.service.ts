@@ -6,6 +6,7 @@ import {Subject} from "rxjs";
 import {IPost} from "./interfaces/IPost";
 import {IMessage} from "./interfaces/IMessage";
 import {IThread} from "./interfaces/IThread";
+import {IPostable} from "./interfaces/IPostable";
 
 @Injectable({
   providedIn: 'root'
@@ -64,7 +65,7 @@ export class DataService {
     this.currentUser$.next(this.currentUser);
 
     if (this.activeAccount.id)
-      this.inbox$.next(this.activeAccount.conversations);
+      this.inbox$.next(this.getActiveAccountInbox());
 
     this.posts$.next(this.allPosts);
   }
@@ -144,19 +145,6 @@ export class DataService {
 
   //POSTS
 
-  getAllPosts() {
-    return this.allPosts.map(post => {
-      let postCopy = {...post};
-      postCopy.comments = {...postCopy.comments};
-      postCopy.comments.messages = [...postCopy.comments.messages];
-      return  postCopy;
-    });
-  }
-
-  private getPost(id: string): IPost | null {
-    return this.allPosts.find(post => post.id === id)?? null;
-  }
-
   createPost(title: string='', content: string='', author: IUser=this.activeAccount): IPost {
     return {
       id: uuid(),
@@ -167,6 +155,30 @@ export class DataService {
       comments: this.createConversation([]),
       isNew: true
     }
+  }
+
+  getAllPosts() {
+    return this.allPosts.map(post => {
+      let postCopy = {...post};
+      postCopy.comments = {...postCopy.comments};
+      postCopy.comments.messages = [...postCopy.comments.messages];
+      return  postCopy;
+    });
+  }
+
+  sortFeedByDate(posts: Array<IPost>, ascDesc: string='asc') {
+    const ascDescValue: number = ascDesc === 'asc' ? -1 : 1;
+    posts.sort((postableA, postableB) => {
+      if (postableA.date > postableB.date)
+        return ascDescValue;
+      if (postableA.date < postableB.date)
+        return -ascDescValue;
+      return 0;
+    });
+  }
+
+  private getPost(id: string): IPost | null {
+    return this.allPosts.find(post => post.id === id)?? null;
   }
 
   updatePost(postData: IPost) {
@@ -202,6 +214,23 @@ export class DataService {
     this.posts$.next(this.getAllPosts());
   }
 
+
+  //INBOX
+
+  sortInboxByDate(threads: Array<IThread>, ascDesc: string='asc') {
+    const ascDescValue: number = ascDesc === 'asc' ? -1 : 1;
+    threads.sort((threadA, threadB) => {
+      const lastMessageA = threadA.messages[threadA.messages.length - 1];
+      const lastMessageB = threadB.messages[threadB.messages.length - 1];
+      if (lastMessageA.date > lastMessageB.date)
+        return ascDescValue;
+      if (lastMessageA.date < lastMessageB.date)
+        return -ascDescValue;
+      return 0;
+    });
+  }
+
+
   //THREADS
 
   getDms(): Array<IThread> {
@@ -221,7 +250,7 @@ export class DataService {
     newThread.users = [...users];
 
     users.forEach(user => this.getAccount(user.id).conversations.push(newThread));
-    this.inbox$.next(this.activeAccount.conversations);
+    this.inbox$.next(this.getActiveAccountInbox());
 
     return newThread;
   }
@@ -245,6 +274,7 @@ export class DataService {
 
     return maybeConversation?? this.createConversation(users);
   }
+
 
   //MESSAGES
 
@@ -275,7 +305,7 @@ export class DataService {
 
     thread.messages.push(message);
 
-    this.inbox$.next(this.activeAccount.conversations);
+    this.inbox$.next(this.getActiveAccountInbox());
   }
 
   updateMessage(messageToUpdate: IMessage, updateType: string) {
@@ -316,7 +346,6 @@ export class DataService {
     return thread;
   }
 
-
   //TESTING
 
   //DATA POPULATION
@@ -328,6 +357,73 @@ export class DataService {
     const maxDate = minDate + (1000 * 60 * 60 * 24 * 2);
     this.lastDate = new Date(minDate + (Math.random() * (maxDate - minDate)));
     return this.lastDate;
+  }
+
+  fillerSentences: Array<string> = [
+    'I hate snakes',
+    'Did you know monkeys not only eat bananas but a variety of other fruits, meats and vegetables as well?',
+    'This sentence is just here to take up space but you are welcome to read it.',
+    'Do you ever get bored of reading meaningless text?',
+    "That's right, big cats and small cats have different types of pupils, though we aren't sure why small cats pupils are narrow we do know it is common to find these types of eyes in creatures that hunt low to the ground.",
+    `There are a few ways to increase the intensity of an exercise:
+     1 - Increase the range of motion
+     2 - Perform the eccentric contraction explosively
+     3 - increase the weight you are lifting`
+  ]
+
+  fillerTitles: Array<string> = [
+    'How to Get MORE $',
+    'All About $',
+    'Want More $? 10 Steps to Getting $',
+    'Miraculous $',
+    'My Journey Towards $',
+    "Why I Stopped $ and You Should Too",
+    'The Ultimate Guide to $'
+  ];
+  fillerSubjects: Array<string> = [
+    'Bananas',
+    'Avocados',
+    'Monkhood',
+    'Money',
+    'Fat',
+    'Muscle',
+    'Sleep',
+    'Potatoes',
+    'Kittens'
+  ]
+
+  getRandomInteger(min: number, max: number): number {
+    return Math.round(min + ((max - min) * Math.random()));
+  }
+
+  getRandomSentence(): string {
+    return this.fillerSentences[this.getRandomInteger(0, this.fillerSentences.length - 1)];
+  }
+
+  getRandomPostTitle(): string {
+    let newRandomTitle = ''
+    const randomTitle = this.fillerTitles[this.getRandomInteger(0, this.fillerTitles.length - 1)];
+    for (let i = 0; i < randomTitle.length; i++) {
+      if (randomTitle[i] === '$') {
+        newRandomTitle += ` ${this.fillerSubjects[this.getRandomInteger(0, this.fillerSubjects.length - 1)]} `;
+      } else {
+        newRandomTitle += randomTitle[i];
+      }
+    }
+    return newRandomTitle;
+  }
+
+  getRandomPostContent(): string {
+    let randomPostContent = '';
+    const numberOfSentences = this.getRandomInteger(1, 10);
+    for (let i = 0; i < numberOfSentences; i++) {
+      if (i !== 0) {
+        const indentationChance = this.getRandomInteger(1, 100);
+        randomPostContent += indentationChance < 50 ? ' ' : indentationChance > 80 ? '\n\n' : '\n';
+      }
+      randomPostContent += this.getRandomSentence();
+    }
+    return randomPostContent;
   }
 
   populateData() {
@@ -354,9 +450,9 @@ export class DataService {
       'Bob Ross',
       'Mr. Rogers',
       'Pikachu',
-      "Dwayne 'the Rock' Johnson"
+      "Dwayne 'the Rock' Johnson",
+      'Tobey Maguire'
     ]
-    const fillerPostContent = `This is filler content to make it look like people are actually talking about stuff. Would you like me to say more? I don't know if I could! I have said so much already! but really you should stop reading this.`;
 
     let dummies: Array<IAccount> = [];
 
@@ -365,13 +461,27 @@ export class DataService {
       const dummy = {...this.getAccount(this.findUserByName(name).id)}
       dummies.push(dummy);
 
-      this.sendMessage(`Hello MoJo this is ${dummy.username}!`, [mojo, dummy], dummy);
-      this.updatePost(this.createPost('A Very Interesting Post About Something', fillerPostContent + '\n\n' + fillerPostContent + '\n\n' + fillerPostContent, dummy));
+      this.updatePost(this.createPost(this.getRandomPostTitle(), this.getRandomPostContent(), dummy));
     });
 
-    this.sendMessage('This is a group message test.', [dummies[0], dummies[1], dummies[2], mojo], dummies[0]);
-    this.sendMessage('This is a group message test.', [dummies[0], dummies[1], dummies[2], mojo], dummies[1]);
-    this.sendMessage('This is a group message test.', [dummies[0], dummies[1], dummies[2], mojo], dummies[2]);
+    dummies.forEach(dummy => {
+      for (let i = 0; i < this.getRandomInteger(4, 8); i++) {
+        const userToPm = this.getUserList(true)[this.getRandomInteger(0, this.allAccounts.length - 1)];
+        console.log(dummy.username + ': ' + userToPm.username);
+        this.sendMessage(this.getRandomSentence(), [userToPm, dummy], dummy);
+      }
+
+      for (let i = 0; i < this.getRandomInteger(1, 10); i++) {
+        const randomPost = this.allPosts[this.getRandomInteger(0, this.allPosts.length - 1)];
+        this.addComment(randomPost, this.getRandomSentence(), dummy);
+      }
+
+      this.sendMessage(`Hello MoJo this is ${dummy.username}!`, [mojo, dummy], dummy);
+    });
+
+    this.sendMessage(this.getRandomSentence(), [dummies[0], dummies[1], dummies[2], mojo], dummies[0]);
+    this.sendMessage(this.getRandomSentence(), [dummies[0], dummies[1], dummies[2], mojo], dummies[1]);
+    this.sendMessage(this.getRandomSentence(), [dummies[0], dummies[1], dummies[2], mojo], dummies[2]);
 
     this.login(mojo.username, mojo.password);
   }
