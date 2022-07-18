@@ -6,7 +6,6 @@ import {Subject} from "rxjs";
 import {IPost} from "./interfaces/IPost";
 import {IMessage} from "./interfaces/IMessage";
 import {IThread} from "./interfaces/IThread";
-import {IPostable} from "./interfaces/IPostable";
 
 @Injectable({
   providedIn: 'root'
@@ -23,18 +22,24 @@ export class DataService {
   private allPosts: Array<IPost>;
 
   currentUser$: Subject<IUser>;
+  activeTab$: Subject<string>;
+  activeConversation$: Subject<IThread | null>;
   posts$!: Subject<Array<IPost>>;
   inbox$!: Subject<Array<IThread>>;
+
+  activeTab: string = '';
+  activeConversation: IThread | null = null;
 
   constructor() {
     this.allAccounts = [];
     this.allPosts = [];
     this.currentUser$ = new Subject<IUser>();
+    this.activeTab$ = new Subject<string>();
+    this.activeConversation$ = new Subject<IThread | null>();
     this.inbox$ = new  Subject<Array<IThread>>();
     this.posts$ = new Subject<Array<IPost>>();
     this.reassignUser(this.nullAccount);
   }
-
 
   //LOGIN & REGISTRATION
 
@@ -59,7 +64,7 @@ export class DataService {
     this.reassignUser(this.nullAccount);
   }
 
-  reassignUser(user: IUser=this.activeAccount) {
+  private reassignUser(user: IUser=this.activeAccount) {
     this.activeAccount = this.allAccounts.find(account => account.id === user.id)?? this.nullAccount;
     this._currentUser = this.activeAccount;
     this.currentUser$.next(this.currentUser);
@@ -135,11 +140,19 @@ export class DataService {
   getUserList(excludeCurrentUser: boolean=false): Array<IUser> {
     const idToExclude: string = excludeCurrentUser ? this.activeAccount.id : '';
     let accountListCopy: Array<IAccount> = this.allAccounts.filter(account => account.id !== idToExclude);
-    return accountListCopy.map(account => { return {...account} as IUser });
+    return accountListCopy.map(account => { return { id: account.id, username: account.username } });
   }
 
   findUserByName(name: string): IUser {
     return this.allAccounts.find(account => account.username === name)?? this.nullAccount;
+  }
+
+
+  //NAV
+
+  changeTab(tab: string) {
+    this.activeTab = tab;
+    this.activeTab$.next(tab);
   }
 
 
@@ -273,6 +286,11 @@ export class DataService {
     });
 
     return maybeConversation?? this.createConversation(users);
+  }
+
+  setConversation(users: Array<IUser>) {
+    this.activeConversation = this.getConversation(users);
+    this.activeConversation$.next(this.activeConversation);
   }
 
 
@@ -433,6 +451,8 @@ export class DataService {
     this.registerAccount('MoJo', defaultPassword);
     const mojo: IAccount = this.getAccount(this.findUserByName('MoJo').id);
 
+    this.changeTab('users');
+
     const dummyUsernames = [
       'Darth Vader',
       'Saitama',
@@ -454,11 +474,12 @@ export class DataService {
       'Tobey Maguire'
     ]
 
-    let dummies: Array<IAccount> = [];
+    let dummies: Array<IUser> = [];
 
     dummyUsernames.forEach(name => {
       this.registerAccount(name, defaultPassword);
-      const dummy = {...this.getAccount(this.findUserByName(name).id)}
+      const dummyAccount = this.getAccount(this.findUserByName(name).id);
+      const dummy = { id: dummyAccount.id, username: dummyAccount.username };
       dummies.push(dummy);
 
       this.updatePost(this.createPost(this.getRandomPostTitle(), this.getRandomPostContent(), dummy));
@@ -466,8 +487,7 @@ export class DataService {
 
     dummies.forEach(dummy => {
       for (let i = 0; i < this.getRandomInteger(4, 8); i++) {
-        const userToPm = this.getUserList(true)[this.getRandomInteger(0, this.allAccounts.length - 1)];
-        console.log(dummy.username + ': ' + userToPm.username);
+        const userToPm = this.getUserList()[this.getRandomInteger(0, this.allAccounts.length - 1)];
         this.sendMessage(this.getRandomSentence(), [userToPm, dummy], dummy);
       }
 

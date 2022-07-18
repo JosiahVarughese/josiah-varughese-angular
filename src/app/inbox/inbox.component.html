@@ -8,7 +8,7 @@
 
   <div id="inbox-nav" class="w-25">
 
-    <ul ngbNav #nav="ngbNav" [(activeId)]="activeConversationId" (activeIdChange)="onChangeConversation()" orientation="vertical" class="me-4">
+    <ul ngbNav #nav="ngbNav" [(activeId)]="activeConversationId" (activeIdChange)="onConversationActiveIdChange()" orientation="vertical" class="me-4">
       <li *ngIf="!isNewConversation" class="mb-4">
 
         <button (click)="startNewConversation()" class="w-100">Start a new conversation</button>

@@ -7,7 +7,7 @@ import {FormControl, FormGroup} from "@angular/forms";
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
 
   needAccount: boolean = false;
 
@@ -18,12 +18,7 @@ export class LoginComponent implements OnInit {
     password: new FormControl('')
   })
 
-  constructor(private dataService: DataService) {
-
-  }
-
-  ngOnInit(): void {
-  }
+  constructor(private dataService: DataService) { }
 
   toggleForms() {
     this.failMessage = '';
@@ -31,7 +26,7 @@ export class LoginComponent implements OnInit {
     this.loginForm.patchValue({
       ['username']: '',
       ['password']: ''
-    })
+    });
   }
 
   requestRegister() {

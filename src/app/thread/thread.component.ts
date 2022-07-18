@@ -7,14 +7,9 @@ import {DataService} from "../data.service";
   templateUrl: './thread.component.html',
   styleUrls: ['./thread.component.css']
 })
-export class ThreadComponent implements OnInit {
+export class ThreadComponent {
 
   @Input() threadData!: IThread;
 
-  constructor(private dataService: DataService) {
-  }
-
-  ngOnInit() {
-  }
-
+  constructor(private dataService: DataService) { }
 }

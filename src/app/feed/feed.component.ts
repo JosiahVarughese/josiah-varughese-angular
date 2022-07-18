@@ -30,7 +30,8 @@ export class FeedComponent implements OnDestroy {
 
   searchForm: FormGroup = new FormGroup({
     searchText: new FormControl('')
-  })
+  });
+
   formSub!: Subscription;
 
   filterKeys: Array<string> = [];
@@ -41,6 +42,7 @@ export class FeedComponent implements OnDestroy {
   constructor(private dataService: DataService) {
     this.postsSub = dataService.posts$.subscribe(posts => this.onFeedUpdate(posts));
     this.onFeedUpdate(this.dataService.getAllPosts());
+
     this.formSub = this.searchForm.valueChanges.subscribe(value => this.onSearchUpdate(value));
   }
 

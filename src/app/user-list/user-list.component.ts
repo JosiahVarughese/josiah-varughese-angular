@@ -7,7 +7,7 @@ import {DataService} from "../data.service";
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent {
 
   users: Array<IUser> = [];
 
@@ -15,7 +15,11 @@ export class UserListComponent implements OnInit {
     this.users = this.dataService.getUserList();
   }
 
-  ngOnInit(): void {
-  }
+  goToUserDm(user: IUser) {
+    if (user.id === this.dataService.currentUser.id)
+      return;
 
+    this.dataService.setConversation([this.dataService.currentUser, user]);
+    this.dataService.changeTab('inbox');
+  }
 }

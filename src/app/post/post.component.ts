@@ -28,8 +28,7 @@ export class PostComponent implements OnInit {
     commentText: new FormControl('')
   })
 
-  constructor(private dataService: DataService) {
-  }
+  constructor(private dataService: DataService) { }
 
   ngOnInit() {
     this.isEditing = this.postData.isNew;

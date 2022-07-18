@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DataService} from "./data.service";
 import {Subscription} from "rxjs";
 import {IUser} from "./interfaces/IUser";
@@ -8,7 +8,7 @@ import {IUser} from "./interfaces/IUser";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'josiah-varughese-angular';
 
   userSub!: Subscription;
@@ -16,10 +16,14 @@ export class AppComponent implements OnInit {
 
   loggedIn: boolean = false;
   activeTab: string = 'inbox';
+  tabSub!: Subscription;
 
   constructor(private dataService: DataService) {
     this.userSub = this.dataService.currentUser$.subscribe(user => this.onUserChange(user));
-    this.dataService.reassignUser();
+    this.onUserChange(this.dataService.currentUser);
+
+    this.tabSub = this.dataService.activeTab$.subscribe(tab => this.onTabChange(tab));
+    this.onTabChange(this.dataService.activeTab);
   }
 
   onUserChange(user: IUser) {
@@ -27,8 +31,17 @@ export class AppComponent implements OnInit {
     this.loggedIn = !!user.id;
   }
 
+  onTabChange(tab: string) {
+    this.activeTab = tab;
+  }
+
   ngOnInit() {
     this.dataService.populateData();
+  }
+
+  ngOnDestroy() {
+    this.userSub.unsubscribe();
+    this.tabSub.unsubscribe();
   }
 
   requestLogout() {

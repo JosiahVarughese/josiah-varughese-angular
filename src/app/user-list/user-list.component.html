@@ -8,7 +8,7 @@
 
   <div *ngFor="let user of users" href="#" class="user-container p-4">
 
-    <a href="#" class="me-3">{{user.username}}</a>
+    <a href="#" class="me-3" (click)="goToUserDm(user)">{{user.username}}</a>
     <span class="subtle">id - {{user.id}}</span>
 
   </div>

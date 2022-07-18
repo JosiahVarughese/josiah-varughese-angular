@@ -10,13 +10,15 @@ import {FormControl, FormGroup} from "@angular/forms";
   templateUrl: './inbox.component.html',
   styleUrls: ['./inbox.component.css']
 })
-export class InboxComponent implements OnInit, OnDestroy {
+export class InboxComponent implements OnDestroy {
 
   @Input() initialConversationId!: string;
 
   inboxSub!: Subscription;
   inboxData: Array<IThread> = [];
   displayInbox: Array<IThread> = [];
+
+  conversationSub!: Subscription;
 
   messageForm: FormGroup = new FormGroup({
     messageText: new FormControl('')
@@ -35,10 +37,9 @@ export class InboxComponent implements OnInit, OnDestroy {
   constructor(private dataService: DataService) {
     this.inboxSub = dataService.inbox$.subscribe(inbox => this.onInboxUpdate(inbox));
     this.onInboxUpdate(this.dataService.getDms());
-  }
 
-  ngOnInit() {
-    this.activeConversationId = this.initialConversationId;
+    this.conversationSub = this.dataService.activeConversation$.subscribe(conversation => this.onConversationChange(conversation));
+    this.onConversationChange(this.dataService.activeConversation);
   }
 
   onInboxUpdate(inbox: Array<IThread>) {
@@ -50,9 +51,10 @@ export class InboxComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.inboxSub.unsubscribe();
+    this.conversationSub.unsubscribe();
   }
 
-  onChangeConversation() {
+  onConversationActiveIdChange() {
     this.isNewConversation = false;
     const maybeThread = this.inboxData.find(thread => thread.id === this.activeConversationId);
     if (maybeThread)
@@ -62,6 +64,19 @@ export class InboxComponent implements OnInit, OnDestroy {
   startNewConversation() {
     this.isNewConversation = true;
     this.activeConversationId = 'New';
+  }
+
+  onConversationChange(conversation: IThread | null) {
+    if (!conversation)
+      return;
+
+    this.activeConversation = conversation;
+    this.activeConversationId = conversation.id;
+
+    this.isNewConversation = !this.inboxData.find(thread => thread.id === this.activeConversationId);
+    if (this.isNewConversation) {
+      this.newConversationUsers = conversation.users.filter(user => user.id === this.dataService.currentUser.id);
+    }
   }
 
   requestSendMessage() {
